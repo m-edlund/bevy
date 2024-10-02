@@ -3450,7 +3450,7 @@ wasm = false
 
 [[example]]
 name = "camera_sub_view"
-path = "examples/3d/camera_sub_view.rs"
+path = "examples/3d/camera_sub_view_bug.rs"
 doc-scrape-examples = true
 
 [package.metadata.example.camera_sub_view]
