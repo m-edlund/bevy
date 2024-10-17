@@ -24,7 +24,7 @@ use bevy_ecs::{
     reflect::ReflectComponent,
     system::{Commands, Query, Res, ResMut, Resource},
 };
-use bevy_math::{vec2, Dir3, Mat4, Ray3d, Rect, URect, UVec2, UVec4, Vec2, Vec3};
+use bevy_math::{vec2, Dir3, IVec2, Mat4, Ray3d, Rect, URect, UVec2, UVec4, Vec2, Vec3};
 use bevy_reflect::prelude::*;
 use bevy_render_macros::ExtractComponent;
 use bevy_transform::components::GlobalTransform;
@@ -67,6 +67,26 @@ impl Default for Viewport {
     }
 }
 
+#[derive(Debug, Clone, Copy, Reflect, PartialEq, Eq)]
+pub struct SubCameraView {
+    /// Size of the entire camera view
+    pub full_size: UVec2,
+    /// Offset of the sub camera
+    pub offset: IVec2,
+    /// Size of the sub camera
+    pub size: UVec2,
+}
+
+impl Default for SubCameraView {
+    fn default() -> Self {
+        Self {
+            full_size: UVec2::new(100, 100),
+            offset: IVec2::new(0, 0),
+            size: UVec2::new(100, 100),
+        }
+    }
+}
+
 /// Information about the current [`RenderTarget`].
 #[derive(Default, Debug, Clone)]
 pub struct RenderTargetInfo {
@@ -86,6 +106,7 @@ pub struct ComputedCameraValues {
     target_info: Option<RenderTargetInfo>,
     // size of the `Viewport`
     old_viewport_size: Option<UVec2>,
+    old_sub_camera_view: Option<SubCameraView>,
 }
 
 /// How much energy a `Camera3d` absorbs from incoming light.
@@ -227,6 +248,8 @@ pub struct Camera {
     pub msaa_writeback: bool,
     /// The clear color operation to perform on the render target.
     pub clear_color: ClearColorConfig,
+    /// If set, this camera will be a sub camera of a large view, defined by a [`SubCameraView`].
+    pub sub_camera_view: Option<SubCameraView>,
 }
 
 impl Default for Camera {
@@ -241,6 +264,7 @@ impl Default for Camera {
             hdr: false,
             msaa_writeback: true,
             clear_color: Default::default(),
+            sub_camera_view: None,
         }
     }
 }
@@ -738,6 +762,7 @@ pub fn camera_system<T: CameraProjection + Component>(
                 || camera.is_added()
                 || camera_projection.is_changed()
                 || camera.computed.old_viewport_size != viewport_size
+                || camera.computed.old_sub_camera_view != camera.sub_camera_view
             {
                 let new_computed_target_info = normalized_target.get_render_target_info(
                     &windows,
@@ -785,13 +810,20 @@ pub fn camera_system<T: CameraProjection + Component>(
                 camera.computed.target_info = new_computed_target_info;
                 if let Some(size) = camera.logical_viewport_size() {
                     camera_projection.update(size.x, size.y);
-                    camera.computed.clip_from_view = camera_projection.get_clip_from_view();
+                    camera.computed.clip_from_view = match &camera.sub_camera_view {
+                        Some(sub_view) => camera_projection.get_clip_from_view_for_sub(sub_view),
+                        None => camera_projection.get_clip_from_view(),
+                    }
                 }
             }
         }
 
         if camera.computed.old_viewport_size != viewport_size {
             camera.computed.old_viewport_size = viewport_size;
+        }
+
+        if camera.computed.old_sub_camera_view != camera.sub_camera_view {
+            camera.computed.old_sub_camera_view = camera.sub_camera_view;
         }
     }
 }
