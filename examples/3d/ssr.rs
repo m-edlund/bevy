@@ -95,7 +95,6 @@ fn main() {
     // reflections at this time. Disable multisampled antialiasing, as deferred
     // rendering doesn't support that.
     App::new()
-        .insert_resource(Msaa::Off)
         .insert_resource(DefaultOpaqueRendererMethod::deferred())
         .init_resource::<AppSettings>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -233,6 +232,7 @@ fn spawn_camera(commands: &mut Commands, asset_server: &AssetServer) {
                 hdr: true,
                 ..default()
             },
+            msaa: Msaa::Off,
             ..default()
         })
         .insert(EnvironmentMapLight {

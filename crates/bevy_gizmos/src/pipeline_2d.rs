@@ -257,15 +257,14 @@ fn queue_line_gizmos_2d(
     pipeline: Res<LineGizmoPipeline>,
     mut pipelines: ResMut<SpecializedRenderPipelines<LineGizmoPipeline>>,
     pipeline_cache: Res<PipelineCache>,
-    msaa: Res<Msaa>,
     line_gizmos: Query<(Entity, &Handle<LineGizmo>, &GizmoMeshConfig)>,
     line_gizmo_assets: Res<RenderAssets<GpuLineGizmo>>,
     mut transparent_render_phases: ResMut<ViewSortedRenderPhases<Transparent2d>>,
-    mut views: Query<(Entity, &ExtractedView, Option<&RenderLayers>)>,
+    mut views: Query<(Entity, &ExtractedView, &Msaa, Option<&RenderLayers>)>,
 ) {
     let draw_function = draw_functions.read().get_id::<DrawLineGizmo2d>().unwrap();
 
-    for (view_entity, view, render_layers) in &mut views {
+    for (view_entity, view, msaa, render_layers) in &mut views {
         let Some(transparent_phase) = transparent_render_phases.get_mut(&view_entity) else {
             continue;
         };
@@ -311,18 +310,17 @@ fn queue_line_joint_gizmos_2d(
     pipeline: Res<LineJointGizmoPipeline>,
     mut pipelines: ResMut<SpecializedRenderPipelines<LineJointGizmoPipeline>>,
     pipeline_cache: Res<PipelineCache>,
-    msaa: Res<Msaa>,
     line_gizmos: Query<(Entity, &Handle<LineGizmo>, &GizmoMeshConfig)>,
     line_gizmo_assets: Res<RenderAssets<GpuLineGizmo>>,
     mut transparent_render_phases: ResMut<ViewSortedRenderPhases<Transparent2d>>,
-    mut views: Query<(Entity, &ExtractedView, Option<&RenderLayers>)>,
+    mut views: Query<(Entity, &ExtractedView, &Msaa, Option<&RenderLayers>)>,
 ) {
     let draw_function = draw_functions
         .read()
         .get_id::<DrawLineJointGizmo2d>()
         .unwrap();
 
-    for (view_entity, view, render_layers) in &mut views {
+    for (view_entity, view, msaa, render_layers) in &mut views {
         let Some(transparent_phase) = transparent_render_phases.get_mut(&view_entity) else {
             continue;
         };

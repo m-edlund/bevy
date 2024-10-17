@@ -282,13 +282,13 @@ fn queue_line_gizmos_3d(
     pipeline: Res<LineGizmoPipeline>,
     mut pipelines: ResMut<SpecializedRenderPipelines<LineGizmoPipeline>>,
     pipeline_cache: Res<PipelineCache>,
-    msaa: Res<Msaa>,
     line_gizmos: Query<(Entity, &Handle<LineGizmo>, &GizmoMeshConfig)>,
     line_gizmo_assets: Res<RenderAssets<GpuLineGizmo>>,
     mut transparent_render_phases: ResMut<ViewSortedRenderPhases<Transparent3d>>,
     mut views: Query<(
         Entity,
         &ExtractedView,
+        &Msaa,
         Option<&RenderLayers>,
         (
             Has<NormalPrepass>,
@@ -303,6 +303,7 @@ fn queue_line_gizmos_3d(
     for (
         view_entity,
         view,
+        msaa,
         render_layers,
         (normal_prepass, depth_prepass, motion_vector_prepass, deferred_prepass),
     ) in &mut views
@@ -370,13 +371,13 @@ fn queue_line_joint_gizmos_3d(
     pipeline: Res<LineJointGizmoPipeline>,
     mut pipelines: ResMut<SpecializedRenderPipelines<LineJointGizmoPipeline>>,
     pipeline_cache: Res<PipelineCache>,
-    msaa: Res<Msaa>,
     line_gizmos: Query<(Entity, &Handle<LineGizmo>, &GizmoMeshConfig)>,
     line_gizmo_assets: Res<RenderAssets<GpuLineGizmo>>,
     mut transparent_render_phases: ResMut<ViewSortedRenderPhases<Transparent3d>>,
     mut views: Query<(
         Entity,
         &ExtractedView,
+        &Msaa,
         Option<&RenderLayers>,
         (
             Has<NormalPrepass>,
@@ -394,6 +395,7 @@ fn queue_line_joint_gizmos_3d(
     for (
         view_entity,
         view,
+        msaa,
         render_layers,
         (normal_prepass, depth_prepass, motion_vector_prepass, deferred_prepass),
     ) in &mut views
