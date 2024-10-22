@@ -1348,6 +1348,17 @@ category = "Application"
 wasm = false
 
 [[example]]
+name = "readback_wasm"
+path = "examples/app/readback_wasm.rs"
+doc-scrape-examples = true
+
+[package.metadata.example.readback_wasm]
+name = "Readback WASM"
+description = "Readback example that works in wasm"
+category = "Application"
+wasm = true
+
+[[example]]
 name = "logs"
 path = "examples/app/logs.rs"
 doc-scrape-examples = true
